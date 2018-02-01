@@ -21,9 +21,14 @@ class Host:
     def __init__(self, name):
         self.host_name = name
         print("New Empty Parking Lot Created...")
-        
+            
     """ Getters and Setters """
     def set_id(self, id):
         self.host_id = id
     def get_id(self):
         return self.host_id
+    
+    def set_name(self, name):
+        self.host_name = name
+    def get_name(self):
+        return self.host_name
