@@ -22,7 +22,7 @@ def main():
     mesh_recieve.req_update(1)
     net_send.check_in()
     
-    mesh_recieve.listen()
+    mesh_recieve.listen()   # Listens on the mesh network for data
     
     # A loop for the constantly running service
     """

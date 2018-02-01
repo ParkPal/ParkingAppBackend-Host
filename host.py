@@ -9,6 +9,8 @@ manages (usually 1).
 
 """
 
+from node import *
+
 class Host:
     """ Variables """
     host_id = None      # This value is provided by the server.
@@ -20,8 +22,16 @@ class Host:
     """ Initialization """
     def __init__(self, name):
         self.host_name = name
+        self.host_nodes = []
         print("New Empty Parking Lot Created...")
-            
+    
+    """ Member Functions """
+    def add_node(self, node):
+        if type(node) is Node:
+            self.host_nodes.append(node)
+        else:
+            print("Object not a node...")
+    
     """ Getters and Setters """
     def set_id(self, id):
         self.host_id = id
@@ -32,3 +42,6 @@ class Host:
         self.host_name = name
     def get_name(self):
         return self.host_name
+    
+    def get_nodes(self):
+        return self.host_nodes

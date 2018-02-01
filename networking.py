@@ -12,6 +12,7 @@ import time
 import pickle
 
 from host import *
+from node import *
 
 class NetworkConnection:
     """Variables that are used to maintain connection """
@@ -58,12 +59,25 @@ class MeshConnection(NetworkConnection):
         self.s.listen()
         while True:
             connection, client_addr = self.s.accept()
-            data = connection.recv(1024)
-            host_obj = pickle.loads(data)
-            print("connection made, received: " + host_obj.get_name())
-
+            
+            obj = self.recieve_object(connection)
+            
+            if type(obj) is Host:
+                tmp = "Host: " + obj.get_name()
+            elif type(obj) is Node:
+                tmp = "Node: " + obj.get_info()
+            else:
+                tmp = "No Data"
+                print("None")
+            print("Connection! Recieved data... | " + tmp)
+            
         # Clean up the connection
         connection.close()
+    
+    def recieve_object(self, conn):
+        obj = conn.recv(1024)
+        obj = pickle.loads(data)
+        return obj
             
     def req_update(self, node):
         # Ask a node for an update
@@ -92,4 +106,5 @@ class WebConnection(NetworkConnection):
         
     def transmit_object(self, data):
         """ Will pickle the given object and transmit it. """
+        data = pickle.dumps(data)
         self.s.sendall(data)
