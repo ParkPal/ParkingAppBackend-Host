@@ -75,7 +75,7 @@ class MeshConnection(NetworkConnection):
         connection.close()
     
     def recieve_object(self, conn):
-        obj = conn.recv(1024)
+        data = conn.recv(1024)
         obj = pickle.loads(data)
         return obj
             
