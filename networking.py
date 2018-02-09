@@ -73,6 +73,7 @@ class MeshConnection(NetworkConnection):
             
         # Clean up the connection
         connection.close()
+        return obj
     
     def recieve_object(self, conn):
         data = conn.recv(1024)
