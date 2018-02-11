@@ -4,18 +4,23 @@ The host node software will maintain a list of these objects to allow it
 to track its child nodes.
 """
 
+from timedate import timedate
+
 class Node:    
     """ Variables """
     node_id = None          # Identification number of the node
     node_ipAddr = None      # IP Address of the node
     node_lastConn = None    # String representing time of last connection
-    node_status = None      # Boolean value representing if the spot is taken
+    node_inUse = None      # Boolean value representing if the spot is taken
+    node_disabled = None
 
     """ Initialization """
     def __init__(self, id, ipAddr):
         self.node_id = id
         self.node_ipAddr = ipAddr
-        self.node_status = False
+        self.node_inUse = False
+        self.node_disabled = False
+        self.node_lastConn = timedate.now()
         print("New node object created...")
 
     """ Member Functions """
@@ -38,7 +43,12 @@ class Node:
     def set_last_connection(self, time):
         self.node_lastConn = time
         
-    def get_status(self):
-        return self.node_status
-    def set_status(self, status):
-        self.node_status = status
+    def get_inUse(self):
+        return self.node_inUse
+    def set_inUse(self, status):
+        self.node_inUse = status
+        
+    def get_disabled(self):
+        return self.node_disabled
+    def set_disabled(self, disabled):
+        self.node_disabled = disabled
