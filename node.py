@@ -4,7 +4,7 @@ The host node software will maintain a list of these objects to allow it
 to track its child nodes.
 """
 
-from timedate import timedate
+from datetime import datetime
 
 class Node:    
     """ Variables """
@@ -20,12 +20,12 @@ class Node:
         self.node_ipAddr = ipAddr
         self.node_inUse = False
         self.node_disabled = False
-        self.node_lastConn = timedate.now()
+        self.node_lastConn = datetime.now()
         print("New node object created...")
 
     """ Member Functions """
     def get_info(self):
-        return "ID: " + str(self.node_id) + " | IP: " + str(self.node_ipAddr) + " | Status: " + str(self.node_status)
+        return "ID: " + str(self.node_id) + " | IP: " + str(self.node_ipAddr) + " | Status: " + str(self.node_inUse)
 
     """ Getters and Setters """        
     def get_id(self):

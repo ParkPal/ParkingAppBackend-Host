@@ -57,20 +57,20 @@ class MeshConnection(NetworkConnection):
     def listen(self):
         print("Listening")
         self.s.listen()
-        while True:
-            connection, client_addr = self.s.accept()
-            
-            obj = self.recieve_object(connection)
-            
-            if type(obj) is Host:
+
+        connection, client_addr = self.s.accept()
+
+        obj = self.recieve_object(connection)
+
+        if type(obj) is Host:
                 tmp = "Host: " + obj.get_name()
-            elif type(obj) is Node:
+        elif type(obj) is Node:
                 tmp = "Node: " + obj.get_info()
-            else:
+        else:
                 tmp = "No Data"
                 print("None")
-            print("Connection! Recieved data... | " + tmp)
-            
+        print("Connection! Recieved data... | " + tmp)
+
         # Clean up the connection
         connection.close()
         return obj
