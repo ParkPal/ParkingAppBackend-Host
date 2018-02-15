@@ -7,6 +7,7 @@ Created on Fri Feb  2 13:02:46 2018
 
 from sqlalchemy import *
 from node import Node
+from host import Host
 
 class SQLController:
 
@@ -17,14 +18,15 @@ class SQLController:
     _metadata = None
 
     node_table = None
-    #host_table = None
+    host_table = None
 
     # Initial creation of the controller. One for an instance.
     def __init__(self, path):
         self._sql_path = path
         self._sql_engine = create_engine(self._sql_path)
         self._metadata = MetaData()
-        self.get_node_table()
+        self.gen_node_table()
+        self.gen_host_table()
 
     # Simple re-creation of engine
     def reset(self):
@@ -53,6 +55,31 @@ class SQLController:
             return result
         else:
             print("Not a node")
+            
+    def add_host(self, host):
+        if type(host) is Host:
+            host_name = host.get_name()
+            host_owner = "MANAGER"
+            host_lastConn = host.host_lastConn
+            host_spotCount = host.host_spotCount
+            host_spotLimit = host.host_spotLimit
+            to_insert = self.node_table.insert().values(hostname = host_name, owner = host_owner, lastConnect = host_lastConn, spotCount = host_spotCount, spotLimit = host_spotLimit)
+            result = self.execute(to_insert)
+            return result
+        else:
+            print("Not a host")
+
+    def get_all_nodes(self):
+        result = self.execute("SELECT * FROM Nodes;")
+        all_nodes = []
+        for row in result:
+            node = Node(row['id'], row['ipAddr'])
+            node.set_inUse = row['inUse']
+            node.set_last_connection = row['lastConnect']
+            all_nodes.append(node)
+
+        if all_nodes == []: return None
+        else: return all_nodes
 
 
     """ The SQL Controller contains the structures of all tables
@@ -61,7 +88,7 @@ class SQLController:
     Add any other tables in a similar manner.
     """
 
-    def get_node_table(self):
+    def gen_node_table(self):
          # Provides a python object of our Node table
          self.node_table = Table('Nodes', self._metadata,
               Column('id', Integer, primary_key=True),
@@ -71,9 +98,9 @@ class SQLController:
               Column('lastConnect', DATETIME)
          )
 
-    def get_host_table(self):
+    def gen_host_table(self):
         # Provides a python object of our Host table
-        host_table = Table('Hosts', self._metadata,
+        self.host_table = Table('Hosts', self._metadata,
             Column('id', Integer, primary_key=True),
             Column('hostname', String(60)),
             Column('owner', String(60)), # Will be a foreign key
@@ -82,7 +109,9 @@ class SQLController:
             Column('spotLimit', Integer),
             Column('open', Boolean)
         )
-        return host_table
+
+"""
+Will be used later...
 
     def get_user_table(self, metadata):
         # Provides a python object of our User Table
@@ -97,3 +126,4 @@ class SQLController:
         # Provides a python object of our User Table
         user_table = Table('Reports', metadata)
         return user_table
+"""
