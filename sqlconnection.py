@@ -6,6 +6,7 @@ Created on Fri Feb  2 13:02:46 2018
 """
 
 from sqlalchemy import *
+from timedate import timedate
 from node import Node
 from host import Host
 
@@ -68,6 +69,17 @@ class SQLController:
             return result
         else:
             print("Not a host")
+            
+    def set_node_status(self, node):
+        if type(node) is Node:
+            node_ip = node.get_ip()
+            node_lastConn = timedate.now()
+            node_inUse = node.get_inUse()
+            to_update = update(node_table).where(node_table.c.ipAddr == node_ip).values(inUse = node_inUse, lastConnect = node_lastConn)
+            result = self.execute(to_update)
+            return result
+        else:
+            print("Not a node")
 
     def get_all_nodes(self):
         result = self.execute("SELECT * FROM Nodes;")
