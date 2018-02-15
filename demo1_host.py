@@ -21,7 +21,8 @@ def main():
     mesh_connection.init_conn()
 
     """ Creates a way of broadcasting messages to the server """
-    #server__connection = WebConnection("SERVER_IP", SERVER_PORT)
+    #server_connection = WebConnection("65.183.143.248", 12345)
+    #server_connection.init_conn())
 
     while True:
         """ Wait for object to be sent from a node """
@@ -29,7 +30,8 @@ def main():
 
         """ Relay data to the server """
         if type(obj) is Node:
-            sql_controller.add_node(obj)
+            sql_controller.set_node_status(obj)
+            #server_connection.transmit_object(obj)
             print("Node recieved")
         else:
             print("Recieved garbage from node")
