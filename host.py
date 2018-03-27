@@ -9,7 +9,7 @@ manages (usually 1).
 
 """
 
-from node import *
+from node import Node
 
 class Host:
     """ Variables """

@@ -5,7 +5,11 @@ Created on Fri Feb  2 13:02:46 2018
 @author: bmart
 """
 
-from sqlalchemy import *
+from sqlalchemy import (
+        create_engine, update,
+        Column, Table,
+        String, Boolean, Integer, DATETIME,
+        MetaData )
 from datetime import datetime
 from node import Node
 from host import Host
@@ -35,7 +39,7 @@ class SQLController:
 
     # Getters and Setters
     def get_engine(self):
-        return _sql_engine
+        return self._sql_engine
 
 
     # Member Functions

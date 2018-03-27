@@ -7,11 +7,10 @@ Packages Used:
 """
 
 import socket
-import time
 import pickle
 
-from host import *
-from node import *
+from host import Host
+from node import Node
 
 class NetworkConnection:
     """Variables that are used to maintain connection """
@@ -28,6 +27,9 @@ class NetworkConnection:
         print("New networking class created...")
         print("Using Path: " + self.gen_path())
 
+    def close_conn(self):
+        self.s.shutdown(socket.SHUT_RDWR)
+        self.s.close()
 
     """ Member Functions """
     def gen_path(self):
@@ -50,21 +52,15 @@ class NetworkConnection:
         self.conn_port = port
 
 class MeshConnection(NetworkConnection):
-#    h = None
-
     def init_conn(self):
+        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.s.bind((self.conn_hostname, self.conn_port))
-        #self.s.listen()
 
     def listen(self):
         print("Listening")
-#        self.init_conn()
-        self.s.listen(5)
+        self.s.listen()
 
-#        if self.h == None:
         connection, client_addr = self.s.accept()
-#        else:
-#             connection = self.h
 
         obj = self.recieve_object(connection)
 
@@ -77,32 +73,10 @@ class MeshConnection(NetworkConnection):
                 print("None")
         print("Connection! Recieved data... | " + tmp)
 
-        # Clean up the connection
         connection.close()
-#        self.s.close()
-#        self.s = socket.socket()
         return obj
 
     def recieve_object(self, conn):
-        """        try:
-             data = ''
-             final = ''
-
-             while True:
-                  data += conn.recv(1024)
-                  print(data)
-                  if not data:
-                       break
-                  else:
-                       final += data
-        except:
-             if final:
-                  pass
-             else:
-                  return False
-
-        print("Recieved: " + final)
-"""
         final = conn.recv(1024)
         obj = pickle.loads(final)
         return obj
