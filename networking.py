@@ -1,5 +1,4 @@
-"""
-This class defines an object that can be instantiated
+"""This class defines an object that can be instantiated
 in order to create a connection to one or multiple
 management servers. Essentially server client code.
 
@@ -49,16 +48,23 @@ class NetworkConnection:
 
     def set_port(self, port):
         self.conn_port = port
-        
+
 class MeshConnection(NetworkConnection):
+#    h = None
+
     def init_conn(self):
         self.s.bind((self.conn_hostname, self.conn_port))
+        #self.s.listen()
 
     def listen(self):
         print("Listening")
-        self.s.listen()
+#        self.init_conn()
+        self.s.listen(5)
 
+#        if self.h == None:
         connection, client_addr = self.s.accept()
+#        else:
+#             connection = self.h
 
         obj = self.recieve_object(connection)
 
@@ -73,38 +79,59 @@ class MeshConnection(NetworkConnection):
 
         # Clean up the connection
         connection.close()
+#        self.s.close()
+#        self.s = socket.socket()
         return obj
-    
+
     def recieve_object(self, conn):
-        data = conn.recv(1024)
-        obj = pickle.loads(data)
+        """        try:
+             data = ''
+             final = ''
+
+             while True:
+                  data += conn.recv(1024)
+                  print(data)
+                  if not data:
+                       break
+                  else:
+                       final += data
+        except:
+             if final:
+                  pass
+             else:
+                  return False
+
+        print("Recieved: " + final)
+"""
+        final = conn.recv(1024)
+        obj = pickle.loads(final)
         return obj
-            
+
     def req_update(self, node):
         # Ask a node for an update
         print("Requesting...")
-    
+
 class WebConnection(NetworkConnection):
     def init_conn(self):
         self.s.connect((self.conn_hostname, self.conn_port))
 
     def check_in(self):
         print("Checking in with host")
-        
+
     def req_new_lot_id(self):
         """ Asks server for next available host id """
         print("Function not yet implemented...")
         return 0
-    
+
     def register_lot(self, host):
         """ Transmits host object to the server. """
         print("Function not yet implemented...")
         return False
-    
+
     def transmit_bytes(self, data):
         """ Transmits the given byte object """
         self.s.sendall(data)
-        
+
     def transmit_object(self, data):
         """ Will pickle the given object and transmit it. """
         data = pickle.dumps(data)
