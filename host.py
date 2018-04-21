@@ -28,7 +28,9 @@ class Host:
     """ Member Functions """
     def add_node(self, node):
         if type(node) is Node:
-            self.host_nodes.append(node)
+            matching = [n for n in self.get_nodes() if n.get_id() == node.get_id()]
+            if len(matching) == 0:
+                self.host_nodes.append(node)
         else:
             print("Object not a node...")
     
