@@ -1,5 +1,5 @@
-from sqlconnection import *
-from sqlalchemy import *
+from sqlconnection import SQLController
+from sqlalchemy import MetaData
 
 """
 This file is used for the initial creation of tables required

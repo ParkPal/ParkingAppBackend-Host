@@ -5,8 +5,12 @@ Created on Fri Feb  2 13:02:46 2018
 @author: bmart
 """
 
-from sqlalchemy import *
-from timedate import timedate
+from sqlalchemy import (
+        create_engine, update,
+        Column, Table,
+        String, Boolean, Integer, DATETIME,
+        MetaData )
+from datetime import datetime
 from node import Node
 from host import Host
 
@@ -35,7 +39,7 @@ class SQLController:
 
     # Getters and Setters
     def get_engine(self):
-        return _sql_engine
+        return self._sql_engine
 
 
     # Member Functions
@@ -73,9 +77,9 @@ class SQLController:
     def set_node_status(self, node):
         if type(node) is Node:
             node_ip = node.get_ip()
-            node_lastConn = timedate.now()
+            node_lastConn = datetime.now()
             node_inUse = node.get_inUse()
-            to_update = update(node_table).where(node_table.c.ipAddr == node_ip).values(inUse = node_inUse, lastConnect = node_lastConn)
+            to_update = update(self.node_table).where(self.node_table.c.ipAddr == node_ip).values(inUse = node_inUse, lastConnect = node_lastConn)
             result = self.execute(to_update)
             return result
         else:

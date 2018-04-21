@@ -1,45 +1,42 @@
 """
-This file represesnts the primary running of the program. It
-is mainly a loop that monitors a group of nodes and relays the
-data to a host server.
+This is the code that will simulate the host for our first demo.
+It will wait for a message from the node then broadcast it to
+the server.
 """
 
-from networking import *
-from host import *
-from node import *
+from networking import MeshConnection, WebConnection
+from sqlconnection import SQLController
+from host import Host
+from node import Node
+import socket
 
-# Defines the main funtion
 def main():
-    """ Both network objects will listen on different interfaces """
-    
-    """ For recieveing data from nodes """
-    mesh_recieve = MeshConnection("127.0.0.1", 12345)
-    mesh_recieve.init_conn()
-    
-    """ For sending data to the server """
-    net_send = WebConnection("127.0.0.1", 1235)
-    
-    mesh_recieve.req_update(1)
-    net_send.check_in()
-    
-    mesh_recieve.listen()   # Listens on the mesh network for data
-    
-    # A loop for the constantly running service
-    """
-    while True:
-        net_send.check_in
-        if mesh_recieve.listen():
-            # Logic for recieving a node packet
-        elif net_send
-        
-        print("Monitoring...")
-        
-    # Flow:
-    #   - listen on mesh port.
-    #   - recieve data from node
-    #   - store nodes data OR add the node
-    #   - transmit data to server
-    """    
+    """ Create an object that represents this lot. """
+    this_lot = Host("Summit Hall Lot")
+    this_lot.set_id(1)
 
-# Run the program
+    """ Creates a way of interacting with the local sql database """
+    sql_controller = SQLController("mysql://manager:password@localhost/host_db")
+
+    """ Creates a way of broadcasting messages to the server """
+    server_connection = WebConnection("65.183.143.248", 12345)
+    server_connection.init_conn()
+
+    while True:
+        """ Wait for object to be sent from a node """
+        mesh_connection = MeshConnection("192.168.2.1", 12345)
+        mesh_connection.init_conn()
+        obj = mesh_connection.listen()
+
+        """ Relay data to the server """
+        if type(obj) is Node:
+            sql_controller.set_node_status(obj)
+            this_lot.add_node(obj)
+            server_connection.transmit_object(this_lot)
+            print("Node recieved and data sent...")
+            mesh_connection.close_conn()
+
+    else:
+        print("Recieved garbage from node")
+
 main()
