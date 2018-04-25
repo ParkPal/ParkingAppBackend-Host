@@ -1,18 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Feb  2 13:02:46 2018
-
 @author: bmart
 """
 
-from sqlalchemy import (
-        create_engine, update,
-        Column, Table,
-        String, Boolean, Integer, DATETIME,
-        MetaData )
+from sqlalchemy import *
 from datetime import datetime
-from node import Node
 from host import Host
+from node import Node
 
 class SQLController:
 
@@ -24,6 +19,7 @@ class SQLController:
 
     node_table = None
     host_table = None
+    user_table = None
 
     # Initial creation of the controller. One for an instance.
     def __init__(self, path):
@@ -32,6 +28,7 @@ class SQLController:
         self._metadata = MetaData()
         self.gen_node_table()
         self.gen_host_table()
+        self.gen_user_table()
 
     # Simple re-creation of engine
     def reset(self):
@@ -39,7 +36,7 @@ class SQLController:
 
     # Getters and Setters
     def get_engine(self):
-        return self._sql_engine
+        return _sql_engine
 
 
     # Member Functions
@@ -64,22 +61,62 @@ class SQLController:
     def add_host(self, host):
         if type(host) is Host:
             host_name = host.get_name()
-            host_owner = "MANAGER"
-            host_lastConn = host.host_lastConn
-            host_spotCount = host.host_spotCount
-            host_spotLimit = host.host_spotLimit
-            to_insert = self.node_table.insert().values(hostname = host_name, owner = host_owner, lastConnect = host_lastConn, spotCount = host_spotCount, spotLimit = host_spotLimit)
+            host_owner = 1
+            host_lastConn = datetime.now()
+            to_insert = self.node_table.insert().values(hostname = host_name, owner = host_owner, lastConnect = host_lastConn)
             result = self.execute(to_insert)
             return result
         else:
             print("Not a host")
+
+
+    def set_host_status(self, host):
+        if type(host) is Host:
+            host_lastConn = datetime.now()
+            host_curCap = self.get_host_cap(host)
+            host_spotCount = len(host.get_nodes())
+            host_inUse = self.get_host_in_use(host) 
+            to_update = update(self.host_table).where(self.host_table.c.lotName == host.get_name()).values( currentCapacity = host_curCap, lastConnect = host_lastConn, spotCount = host_spotCount, spotlimit = host_inUse)
+            result = self.execute(to_update)
+            return result
+        else:
+            print("Not a host!")
+            
+    def get_host_in_use(self, host):
+        x = 0
+        if len(host.get_nodes()) > 0:
+            for node in host.get_nodes():
+                if node.get_inUse() == True:
+                    x += 1
+                    print(host.get_name()+" ")
+                    print(x)
+                    print(node.get_inUse())
+            return x
+        else:
+            print("No nodes!")
+            return 0
+        
+    def get_host_cap(self, host):
+        x = 0
+        if len(host.get_nodes()) > 0:
+            for node in host.get_nodes():
+                if node.get_inUse() == False:
+                    x += 1
+                    print(host.get_name()+ " ")
+                    print(x)
+                    print(node.get_inUse())
+            return (x/len(host.get_nodes()))*100.00
+        else:
+            print("Host has no nodes!")
+            return 0
+        
             
     def set_node_status(self, node):
         if type(node) is Node:
             node_ip = node.get_ip()
-            node_lastConn = datetime.now()
+            node_lastConn = timedate.now()
             node_inUse = node.get_inUse()
-            to_update = update(self.node_table).where(self.node_table.c.ipAddr == node_ip).values(inUse = node_inUse, lastConnect = node_lastConn)
+            to_update = update(node_table).where(node_table.c.ipAddr == node_ip).values(inUse = node_inUse, lastConnect = node_lastConn)
             result = self.execute(to_update)
             return result
         else:
@@ -106,9 +143,10 @@ class SQLController:
 
     def gen_node_table(self):
          # Provides a python object of our Node table
-         self.node_table = Table('Nodes', self._metadata,
-              Column('id', Integer, primary_key=True),
+         self.node_table = Table('polls_node', self._metadata,
+              Column('id', Integer, primary_key=True, autoincrement=True),
               Column('ipAddr', String(15), primary_key=True),
+                                 Column('host_id', Integer, ForeignKey("polls_host.id")),
               Column('inUse', Boolean),
               Column('disabled', Boolean),
               Column('lastConnect', DATETIME)
@@ -116,28 +154,36 @@ class SQLController:
 
     def gen_host_table(self):
         # Provides a python object of our Host table
-        self.host_table = Table('Hosts', self._metadata,
-            Column('id', Integer, primary_key=True),
+        self.host_table = Table('polls_host', self._metadata,
+            Column('id', Integer, primary_key=True, autoincrement=True),
+            Column('lotName', String(200)),
             Column('hostname', String(60)),
-            Column('owner', String(60)), # Will be a foreign key
+            Column('owner', Integer, ForeignKey("auth_user.id")), # Will be a foreign key
             Column('lastConnect', DATETIME),
             Column('spotCount', Integer),
-            Column('spotLimit', Integer),
-            Column('open', Boolean)
+            Column('spotlimit', Integer),
+            Column('open', Boolean),
+            Column('currentCapacity', Numeric(3,2))
+                                
         )
 
-"""
-Will be used later...
 
-    def get_user_table(self, metadata):
+    def gen_user_table(self):
         # Provides a python object of our User Table
-        user_table = Table('Users', metadata,
-            Column('id', Integer, primary_key=True),
-            Column('username', String(60)),
-            Column('lastLogin', DATETIME)
+        self.user_table = Table('auth_user', self._metadata,
+            Column('id', Integer, primary_key=True, autoincrement=True),
+            Column('password', String(128)),
+            Column('username', String(150), unique = True),
+            Column('last_login', DATETIME),
+            Column('is_superuser', Boolean),
+            Column('first_name', String(30)),
+            Column('last_name', String(150)),
+            Column('email', String(254)),
+            Column('is_staff', Boolean),
+            Column('is_active', Boolean),
+            Column('date_joined', DATETIME)
         )
-        return user_table
-    
+"""    
     def get_report_table(self, metadata):
         # Provides a python object of our User Table
         user_table = Table('Reports', metadata)
