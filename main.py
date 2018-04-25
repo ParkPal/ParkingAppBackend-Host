@@ -36,7 +36,7 @@ def main():
             print("Node recieved and data sent...")
             mesh_connection.close_conn()
 
-    else:
-        print("Recieved garbage from node")
+        else:
+            print("Recieved garbage from node")
 
 main()
